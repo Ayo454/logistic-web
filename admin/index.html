@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SwiftLogix Admin</title>
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <div class="admin-container">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <svg viewBox="0 0 40 40" width="32" height="32">
+             fill="#7c3aed" width="40" height="40" rx="8"/>
+            <text x="20" y="28" font-size="20" font-weight="bold" fill="white" text-anchor="middle">SL</text>
+          </svg>
+          <span>SwiftLogix</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="#" class="nav-item active" data-page="dashboard">
+          <span class="icon">📊</span>
+          <span>Dashboard</span>
+        </a>
+        <a href="#" class="nav-item" data-page="orders">
+          <span class="icon">📦</span>
+          <span>Orders</span>
+        </a>
+        <a href="#" class="nav-item" data-page="shipments">
+          <span class="icon">🚚</span>
+          <span>Shipments</span>
+        </a>
+        <a href="#" class="nav-item" data-page="notifications">
+          <span class="icon">🔔</span>
+          <span>Notifications</span>
+        </a>
+        <a href="#" class="nav-item" data-page="users">
+          <span class="icon">👥</span>
+          <span>Users</span>
+        </a>
+        <a href="#" class="nav-item" data-page="settings">
+          <span class="icon">⚙️</span>
+          <span>Settings</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <!-- Header -->
+      <header class="main-header">
+        <div class="header-content">
+          <h1 id="pageTitle">Dashboard</h1>
+          <p id="pageDescription">Welcome back! Here's your logistics overview.</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn-refresh" id="refreshOrders">🔄 Refresh</button>
+          <div class="user-profile">
+            <div class="profile-avatar">A</div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Dashboard Section -->
+      <div id="dashboard-section" class="page-section active">
+      <section class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-header">
+            <span class="metric-icon">�</span>
+            <span class="metric-label">Total Shipments</span>
+          </div>
+          <div class="metric-value" id="metricTotal">2,543</div>
+          <div class="metric-change positive">+12% from last month</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-header">
+            <span class="metric-icon">⏳</span>
+            <span class="metric-label">Pending</span>
+          </div>
+          <div class="metric-value" id="metricPending">342</div>
+          <div class="metric-change neutral">Awaiting processing</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-header">
+            <span class="metric-icon">🚀</span>
+            <span class="metric-label">In Transit</span>
+          </div>
+          <div class="metric-value" id="metricTransit">1,204</div>
+          <div class="metric-change positive">47% in progress</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-header">
+            <span class="metric-icon">✅</span>
+            <span class="metric-label">Delivered</span>
+          </div>
+          <div class="metric-value" id="metricDelivered">997</div>
+          <div class="metric-change positive">+8% this week</div>
+        </div>
+      </section>
+
+      <!-- Charts Section -->
+      <section class="charts-section">
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3>Revenue Trend</h3>
+            <span class="chart-period">Last 7 days</span>
+          </div>
+          <div class="chart-placeholder" id="revenueChart">
+            <svg viewBox="0 0 400 150" preserveAspectRatio="xMidYMid meet">
+              <defs>
+                <linearGradient id="grad1" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#7c3aed" stop-opacity="0.3" />
+                  <stop offset="100%" stop-color="#7c3aed" stop-opacity="0" />
+                </linearGradient>
+              </defs>
+              <polyline points="20,100 70,60 120,80 170,40 220,65 270,35 320,55 380,25" fill="none" stroke="#7c3aed" stroke-width="2"/>
+              <polygon points="20,100 70,60 120,80 170,40 220,65 270,35 320,55 380,25 380,150 20,150" fill="url(#grad1)"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3>Order Status Distribution</h3>
+            <span class="chart-period">Current</span>
+          </div>
+          <div class="status-distribution">
+            <div class="status-item">
+              <div class="status-bar">
+                <div class="status-fill pending" data-width="25"></div>
+              </div>
+              <span class="status-label">Pending: 25%</span>
+            </div>
+            <div class="status-item">
+              <div class="status-bar">
+                <div class="status-fill transit" data-width="47"></div>
+              </div>
+              <span class="status-label">In Transit: 47%</span>
+            </div>
+            <div class="status-item">
+              <div class="status-bar">
+                <div class="status-fill delivered" data-width="28"></div>
+              </div>
+              <span class="status-label">Delivered: 28%</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Recent Orders Table -->
+      <section class="orders-section">
+        <div class="section-header">
+          <h3>Recent Orders</h3>
+          <button class="btn-view-all">View All →</button>
+        </div>
+        <div id="ordersTable" class="orders-table">
+          <div class="table-header">
+            <div>Tracking Number</div>
+            <div>Sender</div>
+            <div>Route</div>
+            <div>Status</div>
+            <div>Cost</div>
+            <div>Date</div>
+          </div>
+          <div id="ordersBody" class="table-body">
+            <div class="empty-state">Loading orders…</div>
+          </div>
+        </div>
+      </section>
+      </div>
+
+      <!-- Orders Section -->
+      <div id="orders-section" class="page-section">
+        <div class="orders-section">
+          <div class="section-header">
+            <h3>All Shipments</h3>
+            <button class="btn-add">+ New Shipment</button>
+          </div>
+          <div id="allOrdersTable" class="orders-table">
+            <div class="table-header">
+              <!-- rearranged for logical flow; ID moved to end and hidden -->
+              <div>Tracking ID</div>
+              <div>Image</div>
+              <div>Email</div>
+              <div>Service</div>
+              <div>Speed</div>
+              <div>Contact Phone</div>
+              <div>Receiver Phone</div>
+              <div>Route</div>
+              <div>Status</div>
+              <div>Price</div>
+              <div>Date</div>
+              <div class="hidden">ID</div>
+            </div>
+            <div id="allOrdersBody" class="table-body">
+              <div class="empty-state">Loading orders…</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Shipments Section -->
+      <div id="shipments-section" class="page-section">
+        <div class="orders-section">
+          <div class="section-header">
+            <h3>Shipment Tracking</h3>
+            <button class="btn-add">+ New Shipment</button>
+          </div>
+          <div class="orders-table">
+            <div class="table-header">
+              <div>Tracking Number</div>
+              <div>Sender → Recipient</div>
+              <div>Status</div>
+              <div>Date Created</div>
+            </div>
+            <div class="table-body">
+              <div class="empty-state">Loading shipments…</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notifications Section -->
+      <div id="notifications-section" class="page-section">
+        <div class="orders-section">
+          <div class="section-header">
+            <h3>Logistics Notifications</h3>
+            <button class="btn-add">+ New Notification</button>
+          </div>
+          <div class="orders-table">
+            <div class="table-header">
+              <div>Title</div>
+              <div>Message</div>
+              <div>Type</div>
+              <div>User Email</div>
+              <div>Status</div>
+              <div>Date Created</div>
+            </div>
+            <div class="table-body">
+              <div class="empty-state">Loading notifications…</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Users Section -->
+      <div id="users-section" class="page-section">
+        <div class="orders-section">
+          <div class="section-header">
+            <h3>User Accounts</h3>
+            <button class="btn-add">+ Add User</button>
+          </div>
+          <div class="orders-table">
+            <div class="table-header">
+              <div>Name</div>
+              <div>Email</div>
+              <div>Role</div>
+              <div>Status</div>
+              <div>Joined</div>
+              <div>Actions</div>
+            </div>
+            <div class="table-body">
+              <div class="empty-state">Loading users…</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings Section -->
+      <div id="settings-section" class="page-section">
+        <div class="settings-container">
+          <div class="settings-card">
+            <h3>Account Settings</h3>
+            <div class="setting-item">
+              <label for="company-name">Company Name</label>
+              <input type="text" id="company-name" placeholder="Enter company name" value="SwiftLogix Logistics" class="setting-input">
+            </div>
+            <div class="setting-item">
+              <label for="email">Email</label>
+              <input type="email" id="email" placeholder="Enter email address" value="admin@swiftlogix.com" class="setting-input">
+            </div>
+            <div class="setting-item">
+              <label for="phone">Phone</label>
+              <input type="tel" id="phone" placeholder="Enter phone number" value="+234 XX XXXX XXXX" class="setting-input">
+            </div>
+            <button class="btn-primary">Save Changes</button>
+          </div>
+
+          <div class="settings-card">
+            <h3>Notification Settings</h3>
+            <div class="checkbox-item">
+              <input type="checkbox" id="email-notif" checked>
+              <label for="email-notif">Email Notifications</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="sms-notif" checked>
+              <label for="sms-notif">SMS Notifications</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="push-notif">
+              <label for="push-notif">Push Notifications</label>
+            </div>
+            <button class="btn-primary">Save Preferences</button>
+          </div>
+
+          <div class="settings-card">
+            <h3>Security</h3>
+            <div class="setting-item">
+              <label for="current-password">Current Password</label>
+              <input type="password" id="current-password" placeholder="Enter current password" class="setting-input">
+            </div>
+            <div class="setting-item">
+              <label for="new-password">New Password</label>
+              <input type="password" id="new-password" placeholder="Enter new password" class="setting-input">
+            </div>
+            <div class="setting-item">
+              <label for="confirm-password">Confirm Password</label>
+              <input type="password" id="confirm-password" placeholder="Confirm new password" class="setting-input">
+            </div>
+            <button class="btn-primary">Update Password</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Notification Modal -->
+  <div id="notificationModal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Create New Notification</h3>
+        <button class="modal-close" id="closeNotificationModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="notificationForm">
+          <div class="form-group">
+            <label for="notificationTitle">Title</label>
+            <input type="text" id="notificationTitle" required placeholder="Enter notification title">
+          </div>
+          <div class="form-group">
+            <label for="notificationMessage">Message</label>
+            <textarea id="notificationMessage" required placeholder="Enter notification message" rows="4"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="notificationType">Type</label>
+            <select id="notificationType">
+              <option value="info">Info</option>
+              <option value="success">Success</option>
+              <option value="warning">Warning</option>
+              <option value="error">Error</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="notificationLink">Link URL (optional)</label>
+            <input type="url" id="notificationLink" placeholder="https://example.com">
+          </div>
+          <div class="form-group">
+            <label>Send to:</label>
+            <div class="radio-group">
+              <label>
+                <input type="radio" name="sendTo" value="all" checked> All users
+              </label>
+              <label>
+                <input type="radio" name="sendTo" value="specific"> Specific users
+              </label>
+            </div>
+          </div>
+          <div class="form-group hidden" id="userSelection
+            <label for="selectedUsers">Select Users</label>
+            <select id="selectedUsers" name="selectedUsers" title="Select Users" multiple size="5">
+              <!-- Users will be populated here -->
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" id="cancelNotification">Cancel</button>
+        <button class="btn-primary" id="sendNotification">Send Notification</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Image View Modal -->
+  <div id="imageUploadModal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Package Image</h3>
+        <button class="modal-close" id="closeImageModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="imagePreview" class="image-preview">
+          <p>Customer's Package Image:</p>
+          <img id="previewImg" alt="Package image">
+        </div>
+        <div id="noImageMessage">
+          <p>No image uploaded by customer</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" id="cancelImageUpload">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="admin.js"></script>
+</body>
+</html>
+

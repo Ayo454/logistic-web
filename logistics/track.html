@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Track your package – SwiftLogix</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="nav-header">
+    <div class="nav-container">
+      <div class="brand">
+        <span class="brand-mark">SL</span>
+        <span class="brand-text">SwiftLogix</span>
+      </div>
+      <nav class="nav-links">
+        <a href="index.html#home">Home</a>
+        <a href="index.html#services">Services</a>
+        <a href="index.html#tracking">Track</a>
+        <a href="index.html#about">About</a>
+        <a href="index.html#contact">Contact</a>
+        <a href="auth.html">Login / Register</a>
+      </nav>
+      <button class="nav-toggle" aria-label="Toggle navigation">
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <main class="track-page-main">
+    <div class="track-page-shell">
+      <header class="track-page-top">
+        <div class="track-page-top-left">
+          <span class="track-page-title">Track your package</span>
+        </div>
+        <div class="track-page-top-right">
+          <span class="track-page-version">SwiftLogix • V1.0</span>
+        </div>
+      </header>
+
+      <div class="track-page-layout">
+        <div class="track-page-card">
+          <form class="track-page-form" id="trackPageForm">
+            <div class="track-page-label-row">
+              <span class="track-page-label">Tracking Number</span>
+            </div>
+
+            <div class="track-page-input-row">
+              <input
+                type="text"
+                id="trackPageTrackingId"
+                class="track-page-input"
+                placeholder="Enter your tracking ID"
+                required
+              >
+              <div class="track-page-country">
+                <span class="track-page-flag">🇳🇬</span>
+                <span class="track-page-country-name">Nigeria</span>
+              </div>
+              <button
+                type="submit"
+                class="track-page-search-btn"
+                id="trackPageButton"
+                aria-label="Check shipment status"
+              >
+                🔍
+              </button>
+            </div>
+
+            <p id="trackPageResult" class="track-result track-page-inline-result" aria-live="polite"></p>
+          </form>
+
+          <div class="track-page-info" id="trackPageInfo" hidden>
+            <p id="trackPageStatus" class="track-page-status-headline">
+              We are working on your request!
+            </p>
+            <p id="trackPageMeta" class="track-page-meta">
+              Estimated delivery details will appear here.
+            </p>
+            <p id="trackPageContact" class="track-page-contact"></p>
+          </div>
+        </div>
+
+        <div class="track-page-map-wrapper">
+          <div class="track-page-map" id="trackPageMapContainer">
+            <iframe
+              id="trackPageMap"
+              title="Shipment route map"
+              loading="lazy"
+              referrerpolicy="strict-origin-when-cross-origin"
+            ></iframe>
+          </div>
+          <div class="track-page-map-footer">
+            <span class="track-page-version-pill">V3.2.0</span>
+            <span class="track-page-map-credit">© OpenStreetMap contributors.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p>&copy; <span id="year"></span> SwiftLogix Logistics. All rights reserved.</p>
+    </div>
+  </footer>
+
+<script src="script.js"></script>
+</body>
+</html>
+
