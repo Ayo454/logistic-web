@@ -29,9 +29,9 @@ app.use('/admin', express.static(path.join(__dirname, 'admin')));
 // Serve uploaded files from uploads folder
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Default route -> index.html
+// Default route -> auth.html
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
+  res.sendFile(path.join(__dirname, 'auth.html'));
 });
 
 // Avoid favicon 404 noise in the browser console
