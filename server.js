@@ -7,8 +7,8 @@ const { createClient } = require('@supabase/supabase-js');
 const nodemailer = require('nodemailer');
 const multer = require('multer');
 
-// Load env from /logistics/.env since that's where it currently lives
-dotenv.config({ path: path.join(__dirname, 'logistics', '.env') });
+// Load environment variables from root .env file
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -146,6 +146,9 @@ if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
 
 const USERS_FILE = path.join(__dirname, 'logistics', 'user.json');
 const UPLOADS_DIR = path.join(__dirname, 'uploads');
+
+// Supabase storage bucket name for orders
+const ORDERS_BUCKET = 'orders';
 
 // Configure multer to save files to disk in the uploads folder
 const storage = multer.diskStorage({
