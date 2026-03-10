@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Logistics</title>
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <div class="admin-wrapper">
+        <!-- Sidebar Navigation -->
+        <aside class="admin-sidebar">
+            <div class="logo">
+                <h2>LogistiX Admin</h2>
+            </div>
+            <nav class="admin-nav">
+                <a href="#" class="nav-item active" data-page="dashboard">
+                    <span>📊</span> Dashboard
+                </a>
+                <a href="#" class="nav-item" data-page="orders">
+                    <span>📦</span> All Shipments
+                </a>
+                <a href="#" class="nav-item" data-page="shipments">
+                    <span>🚚</span> Shipments Tracking
+                </a>
+                <a href="#" class="nav-item" data-page="notifications">
+                    <span>🔔</span> Notifications
+                </a>
+                <a href="#" class="nav-item" data-page="users">
+                    <span>👥</span> User Management
+                </a>
+                <a href="#" class="nav-item" data-page="settings">
+                    <span>⚙️</span> Settings
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="admin-main-content">
+            <!-- Header -->
+            <header class="admin-header">
+                <div class="header-left">
+                    <h1 id="pageTitle">Dashboard</h1>
+                    <p id="pageDescription">Welcome back! Here's your logistics overview.</p>
+                </div>
+                <div class="header-right">
+                    <button class="btn-icon" title="Notifications">🔔</button>
+                    <button class="btn-icon" title="Profile">👤</button>
+                </div>
+            </header>
+
+            <!-- Page Sections -->
+            <div class="page-content">
+
+                <!-- Dashboard Section -->
+                <section id="dashboard-section" class="page-section active">
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-label">Total Shipments</div>
+                            <div class="metric-value" id="metricTotal">0</div>
+                        </div>
+                        <div class="metric-card pending">
+                            <div class="metric-label">Pending</div>
+                            <div class="metric-value" id="metricPending">0</div>
+                        </div>
+                        <div class="metric-card transit">
+                            <div class="metric-label">In Transit</div>
+                            <div class="metric-value" id="metricTransit">0</div>
+                        </div>
+                        <div class="metric-card delivered">
+                            <div class="metric-label">Delivered</div>
+                            <div class="metric-value" id="metricDelivered">0</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Orders Section -->
+                <section id="orders-section" class="page-section">
+                    <div class="section-header">
+                        <h2>Recent Shipments</h2>
+                        <button id="refreshOrders" class="btn btn-primary">🔄 Refresh</button>
+                    </div>
+                    <div class="table-container">
+                        <div class="table-body" id="ordersBody"></div>
+                    </div>
+
+                    <div class="section-header section-header-spaced">
+                        <h2>All Orders</h2>
+                    </div>
+                    <div class="table-container">
+                        <div class="table-body" id="allOrdersBody"></div>
+                    </div>
+                </section>
+
+                <!-- Shipments Section -->
+                <section id="shipments-section" class="page-section">
+                    <div class="section-header">
+                        <h2>Shipments Tracking</h2>
+                        <button class="btn btn-add btn-primary">+ New Notification</button>
+                    </div>
+                    <div class="table-container">
+                        <div class="table-body"></div>
+                    </div>
+                </section>
+
+                <!-- Notifications Section -->
+                <section id="notifications-section" class="page-section">
+                    <div class="section-header">
+                        <h2>Notifications</h2>
+                    </div>
+                    <div class="table-container">
+                        <div class="table-body"></div>
+                    </div>
+                </section>
+
+                <!-- Users Section -->
+                <section id="users-section" class="page-section">
+                    <div class="section-header">
+                        <h2>User Accounts</h2>
+                    </div>
+                    <div class="table-container">
+                        <div class="table-body"></div>
+                    </div>
+                </section>
+
+                <!-- Settings Section -->
+                <section id="settings-section" class="page-section">
+                    <div class="settings-container">
+                        <h2>System Settings</h2>
+                        <div class="settings-group">
+                            <label for="apiUrl">API Base URL:</label>
+                            <input type="text" id="apiUrl" placeholder="Enter API URL">
+                        </div>
+                        <div class="settings-group">
+                            <label for="enableNotifications">Enable Notifications:</label>
+                            <input type="checkbox" id="enableNotifications" checked>
+                        </div>
+                        <button class="btn btn-primary">Save Settings</button>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Notification Modal -->
+    <div id="notificationModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Send Notification</h2>
+                <button id="closeNotificationModal" class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="notificationForm">
+                    <div class="form-group">
+                        <label for="notificationTitle">Title *</label>
+                        <input type="text" id="notificationTitle" placeholder="Notification title" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="notificationMessage">Message *</label>
+                        <textarea id="notificationMessage" rows="4" placeholder="Notification message" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="notificationType">Type</label>
+                        <select id="notificationType">
+                            <option value="info">Info</option>
+                            <option value="success">Success</option>
+                            <option value="warning">Warning</option>
+                            <option value="error">Error</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="notificationLink">Link URL (Optional)</label>
+                        <input type="url" id="notificationLink" placeholder="https://...">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Send To:</label>
+                        <div class="radio-group">
+                            <label>
+                                <input type="radio" name="sendTo" value="all" checked> All Users
+                            </label>
+                            <label>
+                                <input type="radio" name="sendTo" value="specific"> Specific Users
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="userSelection" class="form-group hidden">
+                        <label for="selectedUsers">Select Users *</label>
+                        <select id="selectedUsers" multiple class="select-tall">
+                            <!-- Options populated by JS -->
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button id="cancelNotification" class="btn btn-secondary">Cancel</button>
+                <button id="sendNotification" class="btn btn-primary">Send Notification</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Upload Modal -->
+    <div id="imageUploadModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Order Image</h2>
+                <button id="closeImageModal" class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="imagePreview" class="hidden">
+                    <img id="previewImg" src="" alt="Order image" class="preview-img">
+                </div>
+                <div id="noImageMessage" class="hidden no-image-message">
+                    No image available for this order.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="cancelImageUpload" class="btn btn-secondary">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login / Register – SwiftLogix</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="nav-header">
+        <div class="nav-container">
+            <div class="brand">
+                <span class="brand-mark">SL</span>
+                <span class="brand-text">SwiftLogix</span>
+            </div>
+            <nav class="nav-links">
+                <a href="index.html#home">Home</a>
+                <a href="index.html#services">Services</a>
+                <a href="index.html#tracking">Track</a>
+                <a href="index.html#about">About</a>
+                <a href="index.html#contact">Contact</a>
+            </nav>
+            <button class="nav-toggle" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <section class="auth-section">
+            <div class="container">
+                <div class="auth-wrapper">
+                    <div class="section-header">
+                        <h1>Access your SwiftLogix account</h1>
+                        <p>Manage your logistics orders, track shipments, and get personalized service.</p>
+                    </div>
+
+                    <div class="auth-tabs">
+                        <button id="tab-login" class="auth-tab active">Login</button>
+                        <button id="tab-register" class="auth-tab">Register</button>
+                    </div>
+
+                    <form id="loginForm" class="auth-form">
+                        <div class="form-group">
+                            <label for="login-email">Email</label>
+                            <input type="email" id="login-email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="login-password">Password</label>
+                            <input type="password" id="login-password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Login</button>
+                        <div id="loginStatus" class="status-message"></div>
+                    </form>
+
+                    <form id="registerForm" class="auth-form hidden">
+                        <div class="form-group">
+                            <label for="reg-name">Full Name</label>
+                            <input type="text" id="reg-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="reg-phone">Phone Number</label>
+                            <input type="tel" id="reg-phone" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="reg-email">Email</label>
+                            <input type="email" id="reg-email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="reg-password">Password</label>
+                            <input type="password" id="reg-password" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="reg-password2">Confirm Password</label>
+                            <input type="password" id="reg-password2" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Register</button>
+                        <div id="registerStatus" class="status-message"></div>
+                    </form>
+
+                    <div id="profileCard" class="profile-card hidden">
+                        <div class="profile-header">
+                            <div class="profile-avatar">
+                                <span id="profileAvatarText">U</span>
+                            </div>
+                            <div class="profile-info">
+                                <h3 id="profileName">User</h3>
+                                <p id="profileEmail">user@example.com</p>
+                            </div>
+                        </div>
+                        <div class="profile-details">
+                            <div class="profile-detail">
+                                <label>Name:</label>
+                                <span id="profileNameDetail">—</span>
+                            </div>
+                            <div class="profile-detail">
+                                <label>Email:</label>
+                                <span id="profileEmailDetail">—</span>
+                            </div>
+                            <div class="profile-detail">
+                                <label>Phone:</label>
+                                <span id="profilePhoneDetail">—</span>
+                            </div>
+                        </div>
+                        <button id="switchAccountBtn" class="btn btn-secondary">Switch Account</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
+

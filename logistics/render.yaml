@@ -7,3 +7,17 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: SUPABASE_URL
+        value: your_supabase_project_url
+      - key: SUPABASE_ANON_KEY
+        value: your_supabase_anon_key
+      - key: SMTP_HOST
+        value: smtp.sendgrid.net
+      - key: SMTP_PORT
+        value: 587
+      - key: SMTP_USER
+        value: apikey
+      - key: SMTP_PASS
+        value: your_sendgrid_api_key
+      - key: EMAIL_FROM
+        value: SwiftLogix <noreply@yourdomain.com>

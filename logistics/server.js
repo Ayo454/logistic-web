@@ -188,6 +188,19 @@ function appendUserToFile(user) {
   }
 }
 
+function isUserRegistered(email) {
+  try {
+    if (!fs.existsSync(USERS_FILE)) return false;
+    const raw = fs.readFileSync(USERS_FILE, 'utf8') || '[]';
+    const users = JSON.parse(raw);
+    if (!Array.isArray(users)) return false;
+    return users.some(user => user.email === email && user.type === 'register');
+  } catch (err) {
+    console.error('Error checking user registration:', err);
+    return false;
+  }
+}
+
 // Helper to push order into Supabase logistics_orders table
 async function saveOrderToSupabase(order) {
   if (!supabase) {
@@ -211,10 +224,10 @@ async function saveOrderToSupabase(order) {
       speed_label: order.speedLabel || '',
       price: parseFloat(order.price) || 0,
       contact_phone: order.phone || '',
-      receiver_phone: order.receiverPhone || null,
-      receiver_email: order.receiverEmail || null,
-      receiver_code: order.receiverCode || null,
-      image_url: order.imageUrl || null,
+      receiver_phone: order.receiverPhone && order.receiverPhone.trim() ? order.receiverPhone.trim() : null,
+      receiver_email: order.receiverEmail && order.receiverEmail.trim() ? order.receiverEmail.trim() : null,
+      receiver_code: order.receiverCode && order.receiverCode.trim() ? order.receiverCode.trim() : null,
+      image_url: order.imageUrl && order.imageUrl.trim() ? order.imageUrl.trim() : null,
       status: order.status || 'Pending',
       tracking_id: trackingId,
       created_at: order.createdAt || new Date().toISOString(),
@@ -581,6 +594,12 @@ app.post('/api/order', upload.single('photo'), async (req, res) => {
     if (!order || !order.email || !order.serviceLabel) {
       console.error('Invalid order data - missing required fields:', { email: order?.email, serviceLabel: order?.serviceLabel });
       return res.status(400).json({ ok: false, message: 'Invalid order data - email and serviceLabel required' });
+    }
+
+    // Check if user is registered
+    if (!isUserRegistered(order.email)) {
+      console.error('Order rejected - user not registered:', order.email);
+      return res.status(403).json({ ok: false, message: 'You must register an account before placing an order. Please visit the registration page.' });
     }
 
     let imageUrl = null;

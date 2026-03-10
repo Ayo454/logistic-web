@@ -2,9 +2,9 @@
 import http from 'http';
 
 const testEndpoints = [
-  { url: 'http://localhost:4000/api/users', name: 'GET /api/users' },
-  { url: 'http://localhost:4000/api/notifications', name: 'GET /api/notifications' },
-  { url: 'http://localhost:4000/api/shipments', name: 'GET /api/shipments' },
+  { url: 'http://localhost:3000/api/users', name: 'GET /api/users' },
+  { url: 'http://localhost:3000/api/notifications', name: 'GET /api/notifications' },
+  { url: 'http://localhost:3000/api/shipments', name: 'GET /api/shipments' },
 ];
 
 async function testApi(urlStr, name) {

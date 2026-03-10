@@ -1,4 +1,14 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // --- API Base URL Configuration ---
+    function getApiBaseUrl() {
+      // Check if we're on localhost (development)
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        return 'http://localhost:3000';
+      }
+      // Production - use relative URLs (same domain as the frontend)
+      return '';
+    }
+
     const yearEl = document.getElementById('year');
     if (yearEl) yearEl.textContent = new Date().getFullYear();
   
@@ -117,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function fetchNotificationsForUser(user) {
       try {
         // Fetch from the main server API endpoint
-        const apiUrl = 'http://localhost:3000/api/notifications';
+        const apiUrl = `${getApiBaseUrl()}/api/notifications`;
         const res = await fetch(apiUrl);
         
         if (!res.ok) {
@@ -994,7 +1004,7 @@ document.addEventListener('DOMContentLoaded', () => {
       saveUsers(users);
       localStorage.setItem('logisticsCurrentUser', JSON.stringify(user));
       // send to server
-      fetch('http://localhost:4000/api/auth-event', {
+      fetch(`${getApiBaseUrl()}/api/auth-event`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type: 'register', user: { name, phone, email } })
@@ -1019,7 +1029,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       localStorage.setItem('logisticsCurrentUser', JSON.stringify(found));
       // send to server
-      fetch('http://localhost:4000/api/auth-event', {
+      fetch(`${getApiBaseUrl()}/api/auth-event`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type: 'login', user: { name: found.name, phone: found.phone, email: found.email } })
@@ -1092,7 +1102,7 @@ document.addEventListener('DOMContentLoaded', () => {
       };
 
       try {
-        const res = await fetch('http://localhost:3000/api/shipments', {
+        const res = await fetch(`${getApiBaseUrl()}/api/shipments`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(shipmentData)
@@ -1165,7 +1175,7 @@ document.addEventListener('DOMContentLoaded', () => {
       };
 
       try {
-        const res = await fetch('http://localhost:3000/api/shipments', {
+        const res = await fetch(`${getApiBaseUrl()}/api/shipments`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(shipmentData)

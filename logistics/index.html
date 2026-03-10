@@ -7,6 +7,19 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <script>
+        // Check if user is logged in, if not, redirect to auth.html
+        function getCurrentUser() {
+            try {
+                return JSON.parse(localStorage.getItem('logisticsCurrentUser')) || null;
+            } catch {
+                return null;
+            }
+        }
+        if (!getCurrentUser()) {
+            window.location.href = 'auth.html';
+        }
+    </script>
     <header class="nav-header">
         <div class="nav-container">
             <div class="brand">
@@ -19,6 +32,7 @@
                 <a href="#tracking">Track</a>
                 <a href="#about">About</a>
                 <a href="#contact">Contact</a>
+                <a href="auth.html">Login / Register</a>
             </nav>
             <div class="nav-user">
                 <button class="nav-user-button" aria-label="User menu" id="userMenuBtn">
