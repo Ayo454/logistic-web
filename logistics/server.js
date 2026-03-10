@@ -371,9 +371,9 @@ async function sendOrderEmail(order) {
     `;
 
     if (resendClient) {
-      // Use Resend
+      // Use Resend with Gmail as backup sender
       const { data, error } = await resendClient.emails.send({
-        from: 'SwiftLogix <noreply@swiftlogix.com>',
+        from: 'SwiftLogix <ayomideoluniyi49@gmail.com>',
         to: [order.email],
         subject: `We received your ${order.serviceLabel || 'SwiftLogix'} order`,
         html: htmlBody,
@@ -412,7 +412,7 @@ Please keep this code safe and provide it to the rider when they arrive.`;
     if (resendClient) {
       // Use Resend
       const { data, error } = await resendClient.emails.send({
-        from: 'SwiftLogix <noreply@swiftlogix.com>',
+        from: 'SwiftLogix <ayomideoluniyi49@gmail.com>',
         to: [order.receiverEmail],
         subject: 'SwiftLogix delivery code',
         html: htmlBody,
@@ -480,7 +480,7 @@ async function sendOrderStatusEmail(order) {
     if (resendClient) {
       // Use Resend
       const { data, error } = await resendClient.emails.send({
-        from: 'SwiftLogix <noreply@swiftlogix.com>',
+        from: 'SwiftLogix <ayomideoluniyi49@gmail.com>',
         to: [order.user_email],
         subject: `Your SwiftLogix order is now ${order.status}`,
         html: htmlBody,
@@ -578,9 +578,9 @@ async function sendWelcomeEmail(user) {
 
     let info;
     if (resendClient) {
-      // Use Resend
+      // Use Resend with Gmail as backup sender
       const { data, error } = await resendClient.emails.send({
-        from: 'SwiftLogix <noreply@swiftlogix.com>',
+        from: 'SwiftLogix <ayomideoluniyi49@gmail.com>',
         to: [user.email],
         subject: 'Welcome to SwiftLogix',
         html: htmlBody,
@@ -633,7 +633,7 @@ SwiftLogix Team
     if (resendClient) {
       // Use Resend
       const { data, error } = await resendClient.emails.send({
-        from: 'SwiftLogix <noreply@swiftlogix.com>',
+        from: 'SwiftLogix <ayomideoluniyi49@gmail.com>',
         to: [shipment.user_email],
         subject: 'Your Package Has Been Delivered - SwiftLogix',
         text: textBody,
