@@ -49,13 +49,13 @@ app.get('/api/debug-email', async (req, res) => {
     : process.env.EMAIL_USER || to;
 
   try {
-    const response = await emailProvider.emails.send({
+    const response = await sendEmailViaProvider(
       from,
       to,
-      subject: 'SwiftLogix debug message',
-      html: 'This is a delivery test from your Render service.',
-    });
-    console.log('🔧 debug-email sent', response.id);
+      'SwiftLogix debug message',
+      'This is a delivery test from your service.'
+    );
+    console.log('🔧 debug-email sent', response.id || response.messageId || 'success');
     res.json({ ok: true, response });
   } catch (err) {
     console.error('🔧 debug-email failed', err);
