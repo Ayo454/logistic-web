@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Express Delivery – SwiftLogix</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <script>
+        // Check if user is logged in, if not, redirect to auth.html
+        function getCurrentUser() {
+            try {
+                return JSON.parse(localStorage.getItem('logisticsCurrentUser')) || null;
+            } catch {
+                return null;
+            }
+        }
+        if (!getCurrentUser()) {
+            window.location.href = 'auth.html';
+        }
+    </script>
+    <header class="nav-header">
+        <div class="nav-container">
+            <div class="brand">
+                <span class="brand-mark">SL</span>
+                <span class="brand-text">SwiftLogix</span>
+            </div>
+            <nav class="nav-links">
+                <a href="index.html#home">Home</a>
+                <a href="index.html#services">Services</a>
+                <a href="index.html#tracking">Track</a>
+                <a href="index.html#about">About</a>
+                <a href="index.html#contact">Contact</a>
+                <a href="auth.html">Login / Register</a>
+            </nav>
+            <button class="nav-toggle" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="hero-inner">
+                <div class="hero-copy">
+                    <h1>Express delivery within hours.</h1>
+                    <p>Same‑day and next‑day delivery for urgent parcels inside major cities. Optimised routes, real‑time tracking and proof of delivery for every stop.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section section-alt">
+            <div class="section-header">
+                <h2>Book an express delivery</h2>
+                <p>Tell us where we are picking up from and where it is going. Our team will confirm pricing and ETA.</p>
+            </div>
+            <div class="contact-layout">
+                <form class="contact-form" id="expressForm">
+                    <div class="field-row">
+                        <div class="field">
+                            <label for="ex-name">Full name</label>
+                            <input type="text" id="ex-name" placeholder="Jane Doe">
+                        </div>
+                        <div class="field">
+                            <label for="ex-email">Email</label>
+                            <input type="email" id="ex-email" placeholder="you@example.com">
+                        </div>
+                    </div>
+                    <div class="field-row">
+                        <div class="field">
+                            <label for="ex-phone">Phone number</label>
+                            <input type="tel" id="ex-phone" placeholder="+1 555 123 4567">
+                        </div>
+                        <div class="field">
+                            <label for="ex-receiver">Receiver phone</label>
+                            <input type="tel" id="ex-receiver" placeholder="+1 555 987 6543">
+                        </div>
+                    </div>
+                    <div class="field-row">
+                        <div class="field">
+                            <label for="ex-receiver-email">Receiver email</label>
+                            <input type="email" id="ex-receiver-email" placeholder="receiver@example.com">
+                        </div>
+                    </div>
+                    <div class="field-row">
+                        <div class="field">
+                            <label for="ex-company">Company (optional)</label>
+                            <input type="text" id="ex-company" placeholder="Your company name">
+                        </div>
+                    </div>
+                    <div class="field-row">
+                        <div class="field">
+                            <label for="ex-pickup">Pickup address</label>
+                            <input type="text" id="ex-pickup" placeholder="Street, city">
+                        </div>
+                        <div class="field">
+                            <label for="ex-dropoff">Delivery address</label>
+                            <input type="text" id="ex-dropoff" placeholder="Street, city">
+                        </div>
+                    </div>
+                    <div class="field-row">
+                        <div class="field">
+                            <label for="ex-origin">Pickup state</label>
+                            <select id="ex-origin">
+                                <option value="">Select state</option>
+                                <option value="abia">Abia – Umuahia</option>
+                                <option value="adamawa">Adamawa – Yola</option>
+                                <option value="akwaibom">Akwa Ibom – Uyo</option>
+                                <option value="anambra">Anambra – Awka</option>
+                                <option value="bauchi">Bauchi – Bauchi</option>
+                                <option value="bayelsa">Bayelsa – Yenagoa</option>
+                                <option value="benue">Benue – Makurdi</option>
+                                <option value="borno">Borno – Maiduguri</option>
+                                <option value="crossriver">Cross River – Calabar</option>
+                                <option value="delta">Delta – Asaba</option>
+                                <option value="ebonyi">Ebonyi – Abakaliki</option>
+                                <option value="edo">Edo – Benin City</option>
+                                <option value="ekiti">Ekiti – Ado‑Ekiti</option>
+                                <option value="enugu">Enugu – Enugu</option>
+                                <option value="gombe">Gombe – Gombe</option>
+                                <option value="imo">Imo – Owerri</option>
+                                <option value="jigawa">Jigawa – Dutse</option>
+                                <option value="kaduna">Kaduna – Kaduna</option>
+                                <option value="kano">Kano – Kano</option>
+                                <option value="katsina">Katsina – Katsina</option>
+                                <option value="kebbi">Kebbi – Birnin Kebbi</option>
+                                <option value="kogi">Kogi – Lokoja</option>
+                                <option value="kwara">Kwara – Ilorin</option>
+                                <option value="lagos">Lagos – Ikeja</option>
+                                <option value="nasarawa">Nasarawa – Lafia</option>
+                                <option value="niger">Niger – Minna</option>
+                                <option value="ogun">Ogun – Abeokuta</option>
+                                <option value="ondo">Ondo – Akure</option>
+                                <option value="osun">Osun – Osogbo</option>
+                                <option value="oyo">Oyo – Ibadan</option>
+                                <option value="plateau">Plateau – Jos</option>
+                                <option value="rivers">Rivers – Port Harcourt</option>
+                                <option value="sokoto">Sokoto – Sokoto</option>
+                                <option value="taraba">Taraba – Jalingo</option>
+                                <option value="yobe">Yobe – Damaturu</option>
+                                <option value="zamfara">Zamfara – Gusau</option>
+                                <option value="fct">FCT – Abuja</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="ex-destination">Delivery state</label>
+                            <select id="ex-destination">
+                                <option value="">Select state</option>
+                                <option value="abia">Abia – Umuahia</option>
+                                <option value="adamawa">Adamawa – Yola</option>
+                                <option value="akwaibom">Akwa Ibom – Uyo</option>
+                                <option value="anambra">Anambra – Awka</option>
+                                <option value="bauchi">Bauchi – Bauchi</option>
+                                <option value="bayelsa">Bayelsa – Yenagoa</option>
+                                <option value="benue">Benue – Makurdi</option>
+                                <option value="borno">Borno – Maiduguri</option>
+                                <option value="crossriver">Cross River – Calabar</option>
+                                <option value="delta">Delta – Asaba</option>
+                                <option value="ebonyi">Ebonyi – Abakaliki</option>
+                                <option value="edo">Edo – Benin City</option>
+                                <option value="ekiti">Ekiti – Ado‑Ekiti</option>
+                                <option value="enugu">Enugu – Enugu</option>
+                                <option value="gombe">Gombe – Gombe</option>
+                                <option value="imo">Imo – Owerri</option>
+                                <option value="jigawa">Jigawa – Dutse</option>
+                                <option value="kaduna">Kaduna – Kaduna</option>
+                                <option value="kano">Kano – Kano</option>
+                                <option value="katsina">Katsina – Katsina</option>
+                                <option value="kebbi">Kebbi – Birnin Kebbi</option>
+                                <option value="kogi">Kogi – Lokoja</option>
+                                <option value="kwara">Kwara – Ilorin</option>
+                                <option value="lagos">Lagos – Ikeja</option>
+                                <option value="nasarawa">Nasarawa – Lafia</option>
+                                <option value="niger">Niger – Minna</option>
+                                <option value="ogun">Ogun – Abeokuta</option>
+                                <option value="ondo">Ondo – Akure</option>
+                                <option value="osun">Osun – Osogbo</option>
+                                <option value="oyo">Oyo – Ibadan</option>
+                                <option value="plateau">Plateau – Jos</option>
+                                <option value="rivers">Rivers – Port Harcourt</option>
+                                <option value="sokoto">Sokoto – Sokoto</option>
+                                <option value="taraba">Taraba – Jalingo</option>
+                                <option value="yobe">Yobe – Damaturu</option>
+                                <option value="zamfara">Zamfara – Gusau</option>
+                                <option value="fct">FCT – Abuja</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="field-row">
+                        <div class="field">
+                            <label for="ex-date">Pickup date</label>
+                            <input type="date" id="ex-date">
+                        </div>
+                        <div class="field">
+                            <label for="ex-speed">Delivery speed</label>
+                            <select id="ex-speed">
+                                <option value="24h">24 hours (same day / next day)</option>
+                                <option value="2d">2 days</option>
+                                <option value="3d">3 days</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label for="ex-details">Parcel details</label>
+                        <textarea id="ex-details" rows="4" placeholder="Weight, dimensions, number of parcels and any special handling."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">Submit express request</button>
+                    <p id="expressQuote" class="quote-result" aria-live="polite"></p>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <p>&copy; <span id="year"></span> SwiftLogix Logistics. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMS Test - SwiftLogix</title>
+    <link rel="stylesheet" href="sms-test.css">
+    <!-- External CSS file for all styles -->
+</head>
+<body>
+    <h1>SwiftLogix SMS Test</h1>
+
+    <div class="form-group">
+        <label for="phone">Phone Number:</label>
+        <input type="tel" id="phone" placeholder="+2348051877195 or 08051877195" value="+2348051877195">
+    </div>
+
+    <button onclick="sendVerification()">Send Verification Code</button>
+
+    <div class="form-group verify-section" id="verifySection">
+        <label for="code">Verification Code:</label>
+        <input type="text" id="code" placeholder="Enter 6-digit code">
+        <button onclick="verifyCode()">Verify Code</button>
+    </div>
+
+    <div class="form-group">
+        <label for="message">Custom Message:</label>
+        <textarea id="message" rows="3" placeholder="Enter your message here">Hello from SwiftLogix! Your order is ready.</textarea>
+        <button onclick="sendMessage()">Send Custom Message</button>
+    </div>
+
+    <div id="result"></div>
+
+    <script>
+        async function sendVerification() {
+            const phone = document.getElementById('phone').value;
+            const result = document.getElementById('result');
+
+            try {
+                const response = await fetch('/api/sms/send-verification', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phoneNumber: phone })
+                });
+
+                const data = await response.json();
+
+                if (data.ok) {
+                    result.innerHTML = '<div class="result success">✅ ' + data.message + '</div>';
+                    document.getElementById('verifySection').classList.remove('verify-section');
+                } else {
+                    result.innerHTML = '<div class="result error">❌ ' + data.message + '</div>';
+                }
+            } catch (error) {
+                result.innerHTML = '<div class="result error">❌ Error: ' + error.message + '</div>';
+            }
+        }
+
+        async function verifyCode() {
+            const phone = document.getElementById('phone').value;
+            const code = document.getElementById('code').value;
+            const result = document.getElementById('result');
+
+            try {
+                const response = await fetch('/api/sms/verify-code', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phoneNumber: phone, code: code })
+                });
+
+                const data = await response.json();
+
+                if (data.ok) {
+                    result.innerHTML = '<div class="result success">✅ ' + data.message + '</div>';
+                } else {
+                    result.innerHTML = '<div class="result error">❌ ' + data.message + '</div>';
+                }
+            } catch (error) {
+                result.innerHTML = '<div class="result error">❌ Error: ' + error.message + '</div>';
+            }
+        }
+
+        async function sendMessage() {
+            const phone = document.getElementById('phone').value;
+            const message = document.getElementById('message').value;
+            const result = document.getElementById('result');
+
+            try {
+                const response = await fetch('/api/sms/send-message', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phoneNumber: phone, message: message })
+                });
+
+                const data = await response.json();
+
+                if (data.ok) {
+                    result.innerHTML = '<div class="result success">✅ ' + data.message + ' (SID: ' + data.sid + ')</div>';
+                } else {
+                    result.innerHTML = '<div class="result error">❌ ' + data.message + '</div>';
+                }
+            } catch (error) {
+                result.innerHTML = '<div class="result error">❌ Error: ' + error.message + '</div>';
+            }
+        }
+    </script>
+</body>
+</html>

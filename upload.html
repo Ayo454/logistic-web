@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Package – SwiftLogix</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <script>
+        // Check if user is logged in, if not, redirect to auth.html
+        function getCurrentUser() {
+            try {
+                return JSON.parse(localStorage.getItem('logisticsCurrentUser')) || null;
+            } catch {
+                return null;
+            }
+        }
+        if (!getCurrentUser()) {
+            window.location.href = 'auth.html';
+        }
+    </script>
+    <header class="nav-header">
+        <div class="nav-container">
+            <div class="brand">
+                <span class="brand-mark">SL</span>
+                <span class="brand-text">SwiftLogix</span>
+            </div>
+            <nav class="nav-links">
+                <a href="index.html#home">Home</a>
+                <a href="index.html#services">Services</a>
+                <a href="index.html#tracking">Track</a>
+                <a href="index.html#about">About</a>
+                <a href="index.html#contact">Contact</a>
+                <a href="auth.html">Login / Register</a>
+            </nav>
+            <button class="nav-toggle" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <section class="section section-alt">
+            <div class="section-header">
+                <h2>Upload your package</h2>
+                <p id="uploadIntro">Review your express booking and attach a clear picture of the package.</p>
+            </div>
+            <div class="contact-layout">
+                <div class="contact-form">
+                    <div class="field">
+                        <label>Route</label>
+                        <p id="uploadRoute" class="quote-result"></p>
+                    </div>
+                    <div class="field-row">
+                        <div class="field">
+                            <label>Delivery speed</label>
+                            <p id="uploadSpeed" class="quote-result"></p>
+                        </div>
+                        <div class="field">
+                            <label>Estimated price</label>
+                            <p id="uploadPrice" class="quote-result"></p>
+                        </div>
+                    </div>
+                    <div class="field-row">
+                        <div class="field">
+                            <label>Your email</label>
+                            <p id="uploadUserEmail" class="quote-result"></p>
+                        </div>
+                        <div class="field">
+                            <label>Your phone</label>
+                            <p id="uploadUserPhone" class="quote-result"></p>
+                        </div>
+                    </div>
+                    <div class="field-row">
+                        <div class="field">
+                            <label>Receiver phone</label>
+                            <p id="uploadReceiverPhone" class="quote-result"></p>
+                        </div>
+                        <div class="field">
+                            <label>Receiver email</label>
+                            <p id="uploadReceiverEmail" class="quote-result"></p>
+                        </div>
+                    </div>
+
+                    <div class="upload-box">
+                        <label class="upload-label" for="upload-photo">Upload picture of the package</label>
+                        <input type="file" id="upload-photo" accept="image/*">
+                        <p class="upload-hint">Upload a clear JPG or PNG of the package so our rider can easily identify it at pickup.</p>
+                    </div>
+
+                    <div id="uploadPreviewContainer">
+                        <p>Package Preview</p>
+                        <img id="uploadPreview" alt="Package preview" />
+                        <p id="uploadImageStatus"></p>
+                    </div>
+
+                    <button type="button" id="uploadOrderBtn" class="btn btn-primary btn-full mt-top">Submit order</button>
+                    <p id="uploadOrderStatus" class="quote-result" aria-live="polite"></p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <p>&copy; <span id="year"></span> SwiftLogix Logistics. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
+

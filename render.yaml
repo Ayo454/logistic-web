@@ -1,0 +1,39 @@
+services:
+  - type: web
+    name: swiftlogix-logistics
+    runtime: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      
+      # Supabase Configuration
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_KEY
+        sync: false
+      
+      # Gmail Email Settings
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASS
+        sync: false
+      - key: EMAIL_FROM
+        value: "SwiftLogix <no-reply@swiftlogix.com>"
+      
+      # Twilio SMS Settings
+      - key: TWILIO_ACCOUNT_SID
+        sync: false
+      - key: TWILIO_AUTH_TOKEN
+        sync: false
+      - key: TWILIO_VERIFY_SERVICE_SID
+        sync: false
+      - key: TWILIO_PHONE_NUMBER
+        sync: false
+      
+      # Resend Email (optional - alternative to Gmail)
+      - key: RESEND_API_KEY
+        sync: false
