@@ -78,7 +78,12 @@ Then find the mailer.sendMail call and replace entire try block with:
         <p>Start managing your shipments now!</p>
       `
     });
-    console.log('✓ Welcome email sent:', response.id);
+    // include the destination email in the log since the provider response may not
+    // include an `id` property on free/trial plans (it will otherwise show as undefined)
+    console.log('✓ Welcome email sent to', email, 'response:', response);
+    if (!response || !response.id) {
+      console.warn('⚠️  Resend response did not include an id (that is normal on some plans)');
+    }
   } catch (err) {
     console.error('Error sending welcome email:', err.message);
   }

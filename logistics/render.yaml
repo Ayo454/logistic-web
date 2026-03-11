@@ -12,37 +12,28 @@ services:
       
       # Supabase Configuration
       - key: SUPABASE_URL
-        fromDatabase:
-          name: supabase_url
+        sync: false
       - key: SUPABASE_KEY
-        fromDatabase:
-          name: supabase_key
+        sync: false
       
       # Gmail Email Settings
       - key: EMAIL_USER
-        fromDatabase:
-          name: email_user
+        sync: false
       - key: EMAIL_PASS
-        fromDatabase:
-          name: email_pass
+        sync: false
       - key: EMAIL_FROM
         value: "SwiftLogix <no-reply@swiftlogix.com>"
       
       # Twilio SMS Settings
       - key: TWILIO_ACCOUNT_SID
-        fromDatabase:
-          name: twilio_account_sid
+        sync: false
       - key: TWILIO_AUTH_TOKEN
-        fromDatabase:
-          name: twilio_auth_token
+        sync: false
       - key: TWILIO_VERIFY_SERVICE_SID
-        fromDatabase:
-          name: twilio_verify_service_sid
+        sync: false
       - key: TWILIO_PHONE_NUMBER
-        fromDatabase:
-          name: twilio_phone_number
+        sync: false
       
-      # Resend Email Settings
+      # Resend Email (optional - alternative to Gmail)
       - key: RESEND_API_KEY
-        fromDatabase:
-          name: resend_api_key
+        sync: false

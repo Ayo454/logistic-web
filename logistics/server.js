@@ -4,12 +4,11 @@ import fs from 'fs';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { createClient } from '@supabase/supabase-js';
-import nodemailer from 'nodemailer';
 import multer from 'multer';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import twilio from 'twilio';
-import { Resend } from 'resend';
+import nodemailer from 'nodemailer';
 import { sendSmsVerification, verifySmsCode, sendSmsMessage } from './sms-utils.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -36,6 +35,34 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'auth.html'));
 });
+
+// --- debug utilities ------------------------------------------------------
+// quick endpoint to verify mailer configuration and deliverability
+app.get('/api/debug-email', async (req, res) => {
+  if (!emailProvider) {
+    return res.status(500).json({ ok: false, message: 'email provider not configured' });
+  }
+
+  const to = process.env.EMAIL_USER || '';
+  const from = process.env.EMAIL_FROM
+    ? process.env.EMAIL_FROM
+    : process.env.EMAIL_USER || to;
+
+  try {
+    const response = await sendEmailViaProvider(
+      from,
+      to,
+      'SwiftLogix debug message',
+      'This is a delivery test from your service.'
+    );
+    console.log('🔧 debug-email sent', response.id || response.messageId || 'success');
+    res.json({ ok: true, response });
+  } catch (err) {
+    console.error('🔧 debug-email failed', err);
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
 
 // Avoid favicon 404 noise in the browser console
 app.get('/favicon.ico', (req, res) => {
@@ -126,48 +153,69 @@ async function initializeStorageBucket() {
 // Initialize bucket check when server starts
 setTimeout(initializeStorageBucket, 500);
 
-// --- Mailer setup (configure Resend or SMTP in .env) ---
-let mailer = null;
-let resendClient = null;
-console.log('=== EMAIL CONFIGURATION CHECK ===');
-console.log('RESEND_API_KEY:', process.env.RESEND_API_KEY ? '✓ SET' : '✗ NOT SET');
-console.log('SMTP_HOST:', process.env.SMTP_HOST ? '✓ SET' : '✗ NOT SET');
-console.log('SMTP_USER:', process.env.SMTP_USER ? '✓ SET' : '✗ NOT SET');
-console.log('SMTP_PASS:', process.env.SMTP_PASS ? '✓ SET' : '✗ NOT SET');
-console.log('EMAIL_USER:', process.env.EMAIL_USER ? '✓ SET' : '✗ NOT SET');
-console.log('EMAIL_PASS:', process.env.EMAIL_PASS ? '✓ SET' : '✗ NOT SET');
-console.log('====================================');
+// --- Email setup (using Resend or Gmail SMTP) ---
+let emailProvider = null;
 
-// Priority: Resend > Custom SMTP > Gmail
 if (process.env.RESEND_API_KEY) {
-  resendClient = new Resend(process.env.RESEND_API_KEY);
-  console.log('✓ Resend client initialised');
-} else if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
-  mailer = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT || 587),
-    secure: false,
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
-    },
-  });
-  console.log('✓ SMTP mailer initialised (custom host)');
+  try {
+    const { Resend } = await import('resend');
+    emailProvider = new Resend(process.env.RESEND_API_KEY);
+    console.log('✓ Resend email provider initialized');
+  } catch (err) {
+    console.error('Failed to initialize Resend:', err.message);
+  }
 } else if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
-  mailer = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-  });
-  console.log('✓ SMTP mailer initialised (Gmail)');
+  try {
+    // Fall back to Gmail SMTP using Nodemailer
+    emailProvider = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+    console.log('✓ Gmail SMTP email provider initialized');
+    
+    // Verify connection
+    emailProvider.verify((err, success) => {
+      if (err) {
+        console.error('❌ Gmail SMTP verification failed:', err.message);
+      } else {
+        console.log('✓ Gmail SMTP connection verified successfully');
+      }
+    });
+  } catch (err) {
+    console.error('Failed to initialize Gmail SMTP:', err.message);
+  }
 } else {
-  console.error('⚠️  EMAIL MAILER NOT CONFIGURED! Welcome emails will NOT be sent.');
-  console.error('To enable emails, set one of these in your environment variables:');
-  console.error('  Option 1 (Resend): RESEND_API_KEY');
-  console.error('  Option 2 (Custom SMTP): SMTP_HOST, SMTP_USER, SMTP_PASS');
-  console.error('  Option 3 (Gmail): EMAIL_USER and EMAIL_PASS');
+  console.warn('⚠️  No email provider configured - emails will NOT be sent');
+}
+
+// Helper: Send emails via either Resend or Gmail SMTP
+async function sendEmailViaProvider(from, to, subject, html) {
+  if (!emailProvider) {
+    throw new Error('Email provider not configured');
+  }
+
+  try {
+    // Check if using Resend (has .emails.send method)
+    if (emailProvider.emails && typeof emailProvider.emails.send === 'function') {
+      console.log('📧 Using Resend provider');
+      return await emailProvider.emails.send({ from, to, subject, html });
+    }
+    // Otherwise using Gmail/Nodemailer (has .sendMail method)
+    else if (typeof emailProvider.sendMail === 'function') {
+      console.log('📧 Using Gmail SMTP provider');
+      const result = await emailProvider.sendMail({ from, to, subject, html });
+      console.log('📧 Nodemailer result:', result);
+      return result;
+    }
+    
+    throw new Error('Unknown email provider - no send method found');
+  } catch (err) {
+    console.error('📧 Email send failed in sendEmailViaProvider:', err.message, err.code);
+    throw err;
+  }
 }
 
 // Helper: Send emails in background without blocking the response
@@ -287,7 +335,11 @@ async function saveOrderToSupabase(order) {
 }
 
 async function sendOrderEmail(order) {
-  if ((!resendClient && !mailer) || !order.email) return;
+  if (!order.email) return;
+  if (!emailProvider) {
+    console.error('❌ Email service not configured - skipping order email');
+    return;
+  }
   try {
     const fromAddress = 'SwiftLogix <noreply@swiftlogix.com>';
 
@@ -370,31 +422,13 @@ async function sendOrderEmail(order) {
       </div>
     `;
 
-    if (resendClient) {
-      // Use Resend with Gmail as backup sender
-      const { data, error } = await resendClient.emails.send({
-        from: 'SwiftLogix <ayomideoluniyi49@gmail.com>',
-        to: [order.email],
-        subject: `We received your ${order.serviceLabel || 'SwiftLogix'} order`,
-        html: htmlBody,
-        text: `We have received your logistics order.\n\nRoute: ${order.route || 'Custom route'}\nSpeed: ${order.speedLabel || ''}\nEstimated price: ₦${Number(order.price || 0).toLocaleString('en-NG')} (final rate on confirmation).\n\nThanks,\nSwiftLogix Team`,
-      });
-      
-      if (error) {
-        throw new Error(error.message);
-      }
-      console.log('✅ Order email sent via Resend:', data?.id);
-    } else {
-      // Use nodemailer
-      await mailer.sendMail({
-        from: fromAddress,
-        to: order.email,
-        subject: `We received your ${order.serviceLabel || 'SwiftLogix'} order`,
-        text: `We have received your logistics order.\n\nRoute: ${order.route || 'Custom route'}\nSpeed: ${order.speedLabel || ''}\nEstimated price: ₦${Number(order.price || 0).toLocaleString('en-NG')} (final rate on confirmation).\n\nThanks,\nSwiftLogix Team`,
-        html: htmlBody,
-      });
-      console.log('✅ Order email sent via SMTP');
-    }
+      const response = await sendEmailViaProvider(
+        fromAddress,
+        order.email,
+        `We received your ${order.serviceLabel || 'SwiftLogix'} order`,
+        htmlBody
+      );
+      console.log('✅ Order email sent', response.id || response.messageId || response);
   } catch (err) {
     console.error('Error sending order email', err);
   }
@@ -402,46 +436,38 @@ async function sendOrderEmail(order) {
 
 // send the 6‑digit code to the receiver email when one is supplied
 async function sendReceiverCodeEmail(order) {
-  if ((!resendClient && !mailer) || !order.receiverEmail || !order.receiverCode) return;
+  if (!order.receiverEmail || !order.receiverCode) return;
+  if (!emailProvider) {
+    console.error('❌ Email service not configured - skipping receiver code email');
+    return;
+  }
   try {
     const textBody = `You have been listed as the receiver for a SwiftLogix shipment.\n
 Your verification code is: ${order.receiverCode}\n
 Please keep this code safe and provide it to the rider when they arrive.`;
     const htmlBody = `<p>You have been listed as the receiver for a SwiftLogix shipment.</p><p>Your verification code is <strong>${order.receiverCode}</strong>.</p><p>Please keep this code safe and provide it to the rider when they arrive.</p>`;
 
-    if (resendClient) {
-      // Use Resend
-      const { data, error } = await resendClient.emails.send({
-        from: 'SwiftLogix <ayomideoluniyi49@gmail.com>',
-        to: [order.receiverEmail],
-        subject: 'SwiftLogix delivery code',
-        html: htmlBody,
-        text: textBody,
-      });
-      
-      if (error) {
-        throw new Error(error.message);
-      }
-      console.log('✅ Receiver code email sent via Resend:', data?.id);
-    } else {
-      // Use nodemailer
-      const fromAddress = process.env.EMAIL_FROM || `${process.env.EMAIL_USER}`;
-      await mailer.sendMail({
-        from: fromAddress,
-        to: order.receiverEmail,
-        subject: 'SwiftLogix delivery code',
-        text: textBody,
-        html: htmlBody,
-      });
-      console.log('✅ Receiver code email sent via SMTP');
-    }
+    // Determine proper from address (allow custom EMAIL_FROM)
+    const fromAddress = process.env.EMAIL_FROM || process.env.EMAIL_USER;
+    const response = await sendEmailViaProvider(
+      fromAddress,
+      order.receiverEmail,
+      'SwiftLogix delivery code',
+      htmlBody
+    );
+    console.log('✅ Receiver code email sent', response.id || response.messageId || response);
   } catch (err) {
     console.error('Error sending receiver code email', err);
   }
 }
 
 async function sendOrderStatusEmail(order) {
-  if ((!resendClient && !mailer) || !order.user_email) return;
+  if (!order || !order.user_email) return;
+
+  if (!emailProvider) {
+    console.error('❌ Email service not configured! Order status email not sent.');
+    return;
+  }
   try {
     const htmlBody = `
       <div style="background:#020617;padding:32px 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
@@ -477,37 +503,17 @@ async function sendOrderStatusEmail(order) {
       </div>
     `;
 
-    if (resendClient) {
-      // Use Resend
-      const { data, error } = await resendClient.emails.send({
-        from: 'SwiftLogix <ayomideoluniyi49@gmail.com>',
-        to: [order.user_email],
-        subject: `Your SwiftLogix order is now ${order.status}`,
-        html: htmlBody,
-        text: `Your ${order.service_label || 'SwiftLogix'} order status is now ${order.status}.\n\nRoute: ${order.route || 'Custom route'}\nSpeed: ${order.speed_label || ''}\n\nThanks,\nSwiftLogix Team`,
-      });
-      
-      if (error) {
-        throw new Error(error.message);
-      }
-      console.log('✅ Order status email sent via Resend:', data?.id);
-    } else {
-      // Use nodemailer
-      const fromAddress =
-        process.env.EMAIL_FROM ||
-        process.env.FROM_EMAIL ||
-        process.env.SMTP_USER ||
-        process.env.EMAIL_USER;
-      
-      await mailer.sendMail({
-        from: fromAddress,
-        to: order.user_email,
-        subject: `Your SwiftLogix order is now ${order.status}`,
-        text: `Your ${order.service_label || 'SwiftLogix'} order status is now ${order.status}.\n\nRoute: ${order.route || 'Custom route'}\nSpeed: ${order.speed_label || ''}\n\nThanks,\nSwiftLogix Team`,
-        html: htmlBody,
-      });
-      console.log('✅ Order status email sent via SMTP');
-    }
+    const fromAddress = process.env.EMAIL_FROM
+      ? process.env.EMAIL_FROM
+      : `SwiftLogix <${process.env.EMAIL_USER || 'no-reply@example.com'}>`;
+    
+    const response = await sendEmailViaProvider(
+      fromAddress,
+      order.user_email,
+      `Your SwiftLogix order is now ${order.status}`,
+      htmlBody
+    );
+    console.log('✅ Order status email sent', response.id || response.messageId || response);
   } catch (err) {
     console.error('Error sending order status email', err);
   }
@@ -521,16 +527,16 @@ async function sendWelcomeEmail(user) {
     return;
   }
   
-  if (!resendClient && !mailer) {
-    console.error('❌ EMAIL CLIENT NOT CONFIGURED! Email will not be sent. Set RESEND_API_KEY, EMAIL_USER/EMAIL_PASS or SMTP_HOST/SMTP_USER/SMTP_PASS in environment variables.');
+  if (!emailProvider) {
+    console.error('❌ Email service not configured - skipping welcome email');
     return;
   }
   
   try {
+    // Determine from address; preferrably from EMAIL_FROM, otherwise fallback
     const fromAddress =
       process.env.EMAIL_FROM ||
-      process.env.FROM_EMAIL ||
-      `"SwiftLogix" <noreply@swiftlogix.com>`;
+      `"SwiftLogix" <${process.env.EMAIL_USER || 'no-reply@example.com'}>`;
 
     console.log(`📧 Sending email from: ${fromAddress} to: ${user.email}`);
     const displayName = user.name || 'there';
@@ -576,40 +582,32 @@ async function sendWelcomeEmail(user) {
       </div>
     `;
 
-    let info;
-    if (resendClient) {
-      // Use Resend with Gmail as backup sender
-      const { data, error } = await resendClient.emails.send({
-        from: 'SwiftLogix <ayomideoluniyi49@gmail.com>',
-        to: [user.email],
-        subject: 'Welcome to SwiftLogix',
-        html: htmlBody,
-        text: `Hi ${displayName},\n\nYour SwiftLogix account has been created successfully.\n\nYou can now log in and manage your logistics orders.\n\nThanks,\nSwiftLogix Team`,
-      });
-      
-      if (error) {
-        throw new Error(error.message);
-      }
-      info = { messageId: data?.id };
-    } else {
-      // Use nodemailer
-      info = await mailer.sendMail({
-        from: fromAddress,
-        to: user.email,
-        subject: 'Welcome to SwiftLogix',
-        text: `Hi ${displayName},\n\nYour SwiftLogix account has been created successfully.\n\nYou can now log in and manage your logistics orders.\n\nThanks,\nSwiftLogix Team`,
-        html: htmlBody,
-      });
-    }
+    const response = await sendEmailViaProvider(
+      fromAddress,
+      user.email,
+      'Welcome to SwiftLogix',
+      htmlBody
+    );
     
-    console.log('✅ Welcome email sent successfully:', info.messageId);
+    console.log('✅ Welcome email sent to', user.email, 'response:', response);
+
   } catch (err) {
-    console.error('❌ Error sending welcome email:', err.message);
+    console.error('❌ Error sending welcome email:', {
+      message: err.message,
+      code: err.code,
+      command: err.command,
+      response: err.response,
+      stack: err.stack
+    });
   }
 }
 
 async function sendDeliveryNotification(shipment) {
-  if ((!resendClient && !mailer) || !shipment.user_email) return;
+  if (!shipment.user_email) return;
+  if (!emailProvider) {
+    console.error('❌ Email service not configured - skipping delivery notification');
+    return;
+  }
   try {
     const displayName = shipment.sender_name || 'Customer';
 
@@ -630,37 +628,64 @@ Best regards,
 SwiftLogix Team
     `;
 
-    if (resendClient) {
-      // Use Resend
-      const { data, error } = await resendClient.emails.send({
-        from: 'SwiftLogix <ayomideoluniyi49@gmail.com>',
-        to: [shipment.user_email],
-        subject: 'Your Package Has Been Delivered - SwiftLogix',
-        text: textBody,
-      });
-      
-      if (error) {
-        throw new Error(error.message);
-      }
-      console.log('✅ Delivery notification sent via Resend:', data?.id);
-    } else {
-      // Use nodemailer
-      const fromAddress =
-        process.env.EMAIL_FROM ||
-        process.env.FROM_EMAIL ||
-        process.env.SMTP_USER ||
-        process.env.EMAIL_USER;
-      
-      await mailer.sendMail({
-        from: fromAddress,
-        to: shipment.user_email,
-        subject: 'Your Package Has Been Delivered - SwiftLogix',
-        text: textBody,
-      });
-      console.log('✅ Delivery notification sent via SMTP');
-    }
+    // Determine from address for delivery notification
+    const fromAddress = process.env.EMAIL_FROM || process.env.EMAIL_USER;
+    
+    const response = await sendEmailViaProvider(
+      fromAddress,
+      shipment.user_email,
+      'Your Package Has Been Delivered - SwiftLogix',
+      textBody.replace(/\n/g, '<br/>')
+    );
+    console.log('✅ Delivery notification sent', response.id || response.messageId || response);
   } catch (err) {
     console.error('Error sending delivery notification:', err);
+  }
+}
+
+// Send SMS notification when order is placed
+async function sendOrderSms(order) {
+  if (!twilioClient || !order.phone) {
+    if (!twilioClient) {
+      console.log('⚠️  Twilio not configured, SMS not sent for order');
+    }
+    return;
+  }
+  try {
+    const formattedPhone = order.phone.startsWith('+') ? order.phone : `+234${order.phone.replace(/^0/, '')}`;
+    const message = `Hi, your ${order.serviceLabel || 'SwiftLogix'} order has been received. Tracking ID: ${order.trackingId || order.tracking_id}. Follow delivery at our tracking page. -SwiftLogix`;
+    
+    const result = await sendSmsMessage(formattedPhone, message);
+    if (result.success) {
+      console.log('✅ Order SMS sent to', formattedPhone);
+    } else {
+      console.error('❌ Failed to send order SMS:', result.error);
+    }
+  } catch (err) {
+    console.error('Error sending order SMS:', err);
+  }
+}
+
+// Send SMS notification when order status is updated
+async function sendStatusUpdateSms(order) {
+  if (!twilioClient || !order.contact_phone) {
+    if (!twilioClient) {
+      console.log('⚠️  Twilio not configured, SMS not sent for status update');
+    }
+    return;
+  }
+  try {
+    const formattedPhone = order.contact_phone.startsWith('+') ? order.contact_phone : `+234${order.contact_phone.replace(/^0/, '')}`;
+    const message = `Your SwiftLogix order (${order.tracking_id}) status is now: ${order.status}. Tracking ID: ${order.tracking_id}. -SwiftLogix`;
+    
+    const result = await sendSmsMessage(formattedPhone, message);
+    if (result.success) {
+      console.log('✅ Status update SMS sent to', formattedPhone);
+    } else {
+      console.error('❌ Failed to send status SMS:', result.error);
+    }
+  } catch (err) {
+    console.error('Error sending status update SMS:', err);
   }
 }
 
@@ -765,6 +790,8 @@ app.post('/api/order', upload.single('photo'), async (req, res) => {
     if (fullOrder.receiverEmail && fullOrder.receiverCode) {
       sendEmailAsync(sendReceiverCodeEmail, fullOrder);
     }
+    // Send SMS in background (non-blocking)
+    sendEmailAsync(sendOrderSms, fullOrder);
 
     console.log('✓ Order processing complete for', fullOrder.email);
     return res.json({ ok: true, imageUrl, trackingId });
@@ -797,6 +824,8 @@ app.post('/api/order-status', async (req, res) => {
 
     // Send status email in background (non-blocking)
     sendEmailAsync(sendOrderStatusEmail, data);
+    // Send status SMS in background (non-blocking)
+    sendEmailAsync(sendStatusUpdateSms, data);
     return res.json({ ok: true });
   } catch (err) {
     console.error('Unexpected error in /api/order-status', err);
@@ -1006,6 +1035,19 @@ app.put('/api/shipments/:trackingNumber/status', async (req, res) => {
     // Send email notification if status is 'delivered'
     if (status === 'delivered' && shipment.user_email) {
       await sendDeliveryNotification(shipment);
+      // Also send SMS for delivery
+      if (shipment.sender_phone) {
+        sendEmailAsync(async () => {
+          const formattedPhone = shipment.sender_phone.startsWith('+') ? shipment.sender_phone : `+234${shipment.sender_phone.replace(/^0/, '')}`;
+          const message = `Your package has been delivered! Tracking: ${trackingNumber}. Thank you for choosing SwiftLogix! -SwiftLogix`;
+          const result = await sendSmsMessage(formattedPhone, message);
+          if (result.success) {
+            console.log('✅ Delivery SMS sent to', formattedPhone);
+          } else {
+            console.error('❌ Failed to send delivery SMS:', result.error);
+          }
+        });
+      }
     }
 
     return res.json({ ok: true });

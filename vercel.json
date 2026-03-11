@@ -1,0 +1,10 @@
+{
+  "buildCommand": "cd logistics && npm install",
+  "outputDirectory": "logistics",
+  "public": "logistics",
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "env": {
+    "NODE_ENV": "production"
+  }
+}
